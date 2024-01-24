@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
+    private String userAgent = "Record Store/1.0 (by elemouellic)";
 
 
 
@@ -35,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("RecordStore");
-        String barcode = "5414939920783";
-        String userAgent = "Record Store/1.0 (by elemouellic)";
+        String barcode = "3700187665388";
+
 
         try {
             APIUtils.runAsync(barcode, userAgent, new APIUtils.OnRecordFetchedListener() {

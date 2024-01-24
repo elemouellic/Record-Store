@@ -22,15 +22,6 @@ public class Collection {
     }
 
 
-    /**
-     * Add a record to the collection
-     * @param record the record to add
-     */
-    public void addRecord(Record record) {
-        if (record != null) {
-            this.records.add(record);
-        }
-    }
 
     public String getId() {
         return id;

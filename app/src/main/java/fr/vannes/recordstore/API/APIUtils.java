@@ -1,8 +1,5 @@
 package fr.vannes.recordstore.API;
 
-import android.os.AsyncTask;
-
-import com.google.android.gms.common.api.ApiException;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -42,6 +39,12 @@ public class APIUtils {
     }
 
 
+    /**
+     * This method runs an asynchronous task to fetch the data of a record from the MusicBrainz API based on its barcode.
+     * @param barcode The barcode of the record.
+     * @param userAgent The user agent of the application.
+     * @param listener The listener to handle the result of the API call.
+     */
     public static void runAsync(String barcode, String userAgent, OnRecordFetchedListener listener) {
         executorService.execute(() -> {
             try {
@@ -54,6 +57,13 @@ public class APIUtils {
         });
     }
 
+    /**
+     * This method fetches the data of a record from the MusicBrainz API based on its barcode.
+     * @param barcode The barcode of the record.
+     * @param userAgent The user agent of the application.
+     * @return The JSON response from the MusicBrainz API.
+     * @throws Exception If the request fails.
+     */
     public static String fetchRecordData(String barcode, String userAgent) throws Exception {
         Request request = new Request.Builder()
                 .url(barcodeRecord(barcode))
@@ -72,7 +82,11 @@ public class APIUtils {
         }
     }
 
-
+    /**
+     * This method deserializes the JSON response from the MusicBrainz API to a Record object.
+     * @param jsonString The JSON response from the MusicBrainz API.
+     * @return The Record object.
+     */
     private static Record deserializeRecord(String jsonString) {
         JsonArray releasesArray = gson.fromJson(jsonString, JsonObject.class)
                 .getAsJsonArray("releases");
