@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "327099748089",
+    "firebase_url": "https://recordstore-d073a-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "recordstore-d073a",
+    "storage_bucket": "recordstore-d073a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327099748089:android:289644702cc15ec7535c28",
+        "android_client_info": {
+          "package_name": "fr.vannes.recordstore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV3g87_tNkfh9GdyXgOK0YtzjIinprYM4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

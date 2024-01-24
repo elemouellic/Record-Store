@@ -1,0 +1,171 @@
+package fr.vannes.recordstore.API;
+
+import android.os.AsyncTask;
+
+import com.google.android.gms.common.api.ApiException;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import fr.vannes.recordstore.BO.Artist;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import fr.vannes.recordstore.BO.Record;
+
+/**
+ * This class contains static methods used to call the MusicBrainz API.
+ */
+public class APIUtils {
+
+    private static final OkHttpClient client = new OkHttpClient();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final Gson gson = new Gson();
+
+    public interface OnRecordFetchedListener {
+        void onRecordFetched(Record record);
+
+        void onError(Exception e);
+    }
+
+    /**
+     * This method returns the URL of the MusicBrainz API to search for a record based on its barcode.
+     */
+    public static String barcodeRecord(String barcode) {
+        return "https://musicbrainz.org/ws/2/release/?query=barcode:" + barcode + "&fmt=json";
+    }
+
+
+    public static void runAsync(String barcode, String userAgent, OnRecordFetchedListener listener) {
+        executorService.execute(() -> {
+            try {
+                String jsonString = fetchRecordData(barcode, userAgent);
+                Record record = deserializeRecord(jsonString);
+                listener.onRecordFetched(record);
+            } catch (Exception e) {
+                listener.onError(e);
+            }
+        });
+    }
+
+    public static String fetchRecordData(String barcode, String userAgent) throws Exception {
+        Request request = new Request.Builder()
+                .url(barcodeRecord(barcode))
+                .addHeader("User-Agent", userAgent)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                assert response.body() != null;
+                return response.body().string();
+            } else {
+                throw new Exception("Request failed with HTTP error code: " + response.code());
+            }
+        } catch (Exception e) {
+            throw new Exception("Error during API call", e);
+        }
+    }
+
+
+    private static Record deserializeRecord(String jsonString) {
+        JsonArray releasesArray = gson.fromJson(jsonString, JsonObject.class)
+                .getAsJsonArray("releases");
+
+        for (JsonElement releaseElement : releasesArray) {
+            JsonObject releaseObject = releaseElement.getAsJsonObject();
+            // Retrieve the ID from the JSON response
+            String id = releasesArray.size() > 0
+                    ? releasesArray.get(0).getAsJsonObject().get("id").getAsString()
+                    : "";
+            // Retrieve the title from the JSON response
+            String title = releasesArray.size() > 0
+                    ? releasesArray.get(0).getAsJsonObject().get("title").getAsString()
+                    : "";
+            // Retrieve the picture URL from the JSON response
+            String coverArtArchiveUrl = releasesArray.size() > 0
+                    ? "https://coverartarchive.org/release/" + id + "/front"
+                    : "";
+            String directImageUrl = releasesArray.size() > 0
+                    ? getDirectImageUrl(coverArtArchiveUrl)
+                    : "";
+
+            // Retrieve the type from the JSON response
+            String type = "";
+            // Loop through the media array to retrieve the format
+            JsonArray mediaArray = releaseObject.getAsJsonArray("media");
+            if (mediaArray != null && mediaArray.size() > 0) {
+                JsonObject mediaObject = mediaArray.get(0).getAsJsonObject();
+
+                type = mediaObject.has("format") && !mediaObject.get("format").isJsonNull()
+                        ? mediaObject.get("format").getAsString()
+                        : "";
+            }
+
+
+            // Retrieve the artist from the JSON response
+            Artist artist = new Artist();
+            JsonArray artistArray = releaseObject.getAsJsonArray("artist-credit");
+
+            for (JsonElement artistElement : artistArray) {
+                JsonObject artistObject = artistElement.getAsJsonObject();
+                artist.setId(artistArray.size() > 0
+                        ? artistArray.get(0).getAsJsonObject().has("artist")
+                        ? artistArray.get(0).getAsJsonObject().getAsJsonObject("artist").has("id")
+                        ? artistArray.get(0).getAsJsonObject().getAsJsonObject("artist").get("id").getAsString()
+                        : ""
+                        : ""
+                        : "");
+                artist.setName(artistArray.size() > 0
+                        ? artistArray.get(0).getAsJsonObject().has("artist")
+                        ? artistArray.get(0).getAsJsonObject().getAsJsonObject("artist").has("name")
+                        ? artistArray.get(0).getAsJsonObject().getAsJsonObject("artist").get("name").getAsString()
+                        : ""
+                        : ""
+                        : "");
+            }
+
+            return new Record(id, title, directImageUrl, type, artist);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * This method returns the direct URL of the image from the Cover Art Archive based on the given URL.
+     *
+     * @param coverArtArchiveUrl The URL of the image from the Cover Art Archive.
+     * @return The direct URL of the image.
+     */
+    public static String getDirectImageUrl(String coverArtArchiveUrl) {
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(coverArtArchiveUrl)
+                .build();
+
+
+        try (Response response = client.newCall(request).execute()) {
+
+            // Suivre la redirection
+            if (response.isSuccessful()) {
+                return response.request().url().toString();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+
+    }
+
+
+}
