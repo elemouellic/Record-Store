@@ -121,6 +121,14 @@ public class APIUtils {
                         : "";
             }
 
+            // Retrieve the barcode from the JSON response
+            String barcode = releasesArray.size() > 0
+                    ? releasesArray.get(0).getAsJsonObject().has("barcode")
+                    ? releasesArray.get(0).getAsJsonObject().get("barcode").getAsString()
+                    : ""
+                    : "";
+
+
 
             // Retrieve the artist from the JSON response
             Artist artist = new Artist();
@@ -144,7 +152,7 @@ public class APIUtils {
                         : "");
             }
 
-            return new Record(id, title, directImageUrl, type, artist);
+            return new Record(id, title, directImageUrl, type, barcode, artist);
         }
 
         return null;

@@ -15,6 +15,7 @@ public class Record {
     private String title;
     private String pictureURL;
     private String type;
+    private String barcode;
 
     private Artist artist;
 
@@ -22,13 +23,15 @@ public class Record {
     public Record() {
     }
 
-    public Record(String id, String title, String pictureURL, String type, Artist artist) {
+    public Record(String id, String title, String pictureURL, String type, String barcode, Artist artist) {
         this.id = id;
         this.title = title;
         this.pictureURL = pictureURL;
         this.type = type;
+        this.barcode = barcode;
         this.artist = artist;
     }
+
 
     public String getId() {
         return id;
@@ -62,6 +65,13 @@ public class Record {
         this.type = type;
     }
 
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
 
     public Artist getArtist() {
         return artist;

@@ -13,7 +13,20 @@
           "package_name": "fr.vannes.recordstore"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "327099748089-99rc577o4nps8r6bj5saifn3pa3tqjub.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fr.vannes.recordstore",
+            "certificate_hash": "9f5a4e99d5dcb18d3565bb195062d6643f765ec0"
+          }
+        },
+        {
+          "client_id": "327099748089-8o5n0dkct778ldugjnvasdv5cp1em9as.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBV3g87_tNkfh9GdyXgOK0YtzjIinprYM4"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327099748089-8o5n0dkct778ldugjnvasdv5cp1em9as.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

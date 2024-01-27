@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Record Store</string>
+    <string name="connexion_avec_google">Connexion avec Google</string>
 </resources>
