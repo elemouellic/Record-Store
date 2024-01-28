@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/collection"
+        android:icon="@drawable/compact_disc_solid"
+        android:title="@string/ma_collection" />
+    <item
+        android:id="@+id/add"
+        android:icon="@drawable/plus_solid"
+        android:title="@string/ajouter" />
+    <item
+        android:id="@+id/remove"
+        android:icon="@drawable/xmark_solid"
+        android:title="@string/supprimer" />
+    <item
+        android:id="@+id/user"
+        android:icon="@drawable/user_solid"
+        android:title="@string/mon_compte" />
+</menu>

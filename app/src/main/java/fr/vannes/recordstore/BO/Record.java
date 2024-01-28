@@ -1,5 +1,7 @@
 package fr.vannes.recordstore.BO;
 
+import androidx.annotation.NonNull;
+
 /**
  * This class represents a record of a music collection.
  * It contains the following information:
@@ -79,5 +81,18 @@ public class Record {
 
     public void setArtist(Artist artist) {
         this.artist = artist;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Titre: ").append(title).append("\n")
+                .append(artist.toString()).append("'\n")
+                .append("Cover: ").append(pictureURL).append("\n")
+                .append("Format: ").append(type).append("\n")
+                .append("Code barre: ").append(barcode).append("\n");
+
+        return stringBuilder.toString();
     }
 }

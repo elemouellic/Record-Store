@@ -1,6 +1,8 @@
 package fr.vannes.recordstore.BO;
 
 
+import androidx.annotation.NonNull;
+
 /**
  * This class represents an artist of a music collection.
  * It contains the following information:
@@ -34,5 +36,11 @@ public class Artist {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Artiste: " + name;
     }
 }

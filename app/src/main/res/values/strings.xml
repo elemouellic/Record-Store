@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">Record Store</string>
     <string name="connexion_avec_google">Connexion avec Google</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ma_collection">Ma Collection</string>
+    <string name="ajouter">Ajouter</string>
+    <string name="supprimer">Supprimer</string>
+    <string name="mon_compte">Mon Compte</string>
+    <string name="entrez_le_code_barres_ici">Entrez le code-barres ici</string>
+    <string name="recherche">Recherche</string>
+    <string name="ajouter_la_collection">Ajouter à la collection</string>
 </resources>
