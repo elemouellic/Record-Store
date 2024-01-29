@@ -5,48 +5,21 @@
     android:layout_height="match_parent"
     tools:context=".AddFragment">
 
-    <!-- Utilisation d'un LinearLayout avec orientation verticale -->
-    <!-- Utilisation d'un LinearLayout avec orientation verticale -->
-    <!-- Utilisation d'un LinearLayout avec orientation verticale -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="635dp"
         android:layout_gravity="center"
         android:orientation="vertical">
 
-        <!-- EditText pour le code-barres -->
+
         <EditText
             android:id="@+id/editTextBarcode"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
             android:hint="@string/entrez_le_code_barres_ici"
             android:inputType="number" />
 
-        <!-- ImageView pour afficher la couverture de l'album -->
-        <ImageView
-            android:id="@+id/imageViewAlbumCover"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-
-        <!-- ProgressBar -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <!-- TextView pour afficher les informations de l'album -->
-        <TextView
-            android:id="@+id/textViewAlbumInfo"
-            android:layout_width="match_parent"
-            android:layout_height="268dp"
-            android:padding="10dp"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
-
-        <!-- Utilisation d'un LinearLayout avec orientation horizontale pour les boutons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,21 +29,46 @@
             <!-- Bouton de recherche -->
             <Button
                 android:id="@+id/btn_search"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="213dp"
+                android:layout_width="160dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/recherche" />
+                android:text="@string/recherche"
+                android:layout_marginStart="30dp"/>
 
-            <!-- Bouton d'ajout à la collection -->
+
             <Button
                 android:id="@+id/btn_add"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="190dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/ajouter_la_collection" />
+                android:text="@string/ajouter_la_collection"
+                android:layout_marginStart="10dp"/>
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageViewAlbumCover"
+            android:layout_width="308dp"
+            android:layout_height="275dp"
+            android:layout_gravity="center" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <!-- TextView pour afficher les informations de l'album -->
+
+        <!-- Utilisation d'un LinearLayout avec orientation horizontale pour les boutons -->
+
+        <TextView
+            android:id="@+id/textViewAlbumInfo"
+            android:layout_width="match_parent"
+            android:layout_height="199dp"
+            android:padding="10dp"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
 
     </LinearLayout>
 

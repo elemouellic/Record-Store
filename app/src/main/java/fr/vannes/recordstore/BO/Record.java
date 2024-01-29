@@ -89,7 +89,7 @@ public class Record {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Titre: ").append(title).append("\n")
                 .append(artist.toString()).append("'\n")
-                .append("Cover: ").append(pictureURL).append("\n")
+
                 .append("Format: ").append(type).append("\n")
                 .append("Code barre: ").append(barcode).append("\n");
 

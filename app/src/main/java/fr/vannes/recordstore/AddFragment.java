@@ -72,6 +72,7 @@ public class AddFragment extends Fragment {
         textViewAlbum = view.findViewById(textViewAlbumInfo);
         buttonAdd = view.findViewById(btn_add);
         progressBar = view.findViewById(id.progressBar);
+        imageViewAlbumCover = view.findViewById(R.id.imageViewAlbumCover);
 
         buttonSearch.setOnClickListener(v -> {
             barcode = editTextBarcode.getText().toString();
@@ -87,13 +88,13 @@ public class AddFragment extends Fragment {
                                 textViewAlbum.setText(record.toString());
 // todo : afficher l'image de l'album
 
-//                                if (record.getPictureURL() != null) {
-//                                    Glide.with(requireActivity())
-//                                            .load(record.getPictureURL())
-//                                            .into(imageViewAlbumCover);
-//                                } else {
-//                                    Toast.makeText(activity, "Image non disponible", Toast.LENGTH_SHORT).show();
-//                                }
+                                if (record.getPictureURL() != null) {
+                                    Glide.with(requireActivity())
+                                            .load(record.getPictureURL())
+                                            .into(imageViewAlbumCover);
+                                } else {
+                                    Toast.makeText(activity, "Image non disponible", Toast.LENGTH_SHORT).show();
+                                }
                             });
 
 
