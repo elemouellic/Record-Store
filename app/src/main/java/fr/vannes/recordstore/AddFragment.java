@@ -76,26 +76,29 @@ public class AddFragment extends Fragment {
 
         buttonSearch.setOnClickListener(v -> {
             barcode = editTextBarcode.getText().toString();
-            if (!barcode.isEmpty()) {
-                progressBar.setVisibility(View.VISIBLE);
-                try {
+            // Add a check to make sure the barcode is at least 5 characters long
+            if (barcode.length() < 5) {
+                Toast.makeText(getActivity(), "Veuillez entrer un code-barres valide", Toast.LENGTH_SHORT).show();
+            } else {
+                if (!barcode.isEmpty()) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    try {
 
-                    APIUtils.runAsync(barcode, userAgent, new APIUtils.OnRecordFetchedListener() {
-                        @Override
-                        public void onRecordFetched(Record record) {
-                            requireActivity().runOnUiThread(() -> {
-                                progressBar.setVisibility(View.GONE);
-                                textViewAlbum.setText(record.toString());
-// todo : afficher l'image de l'album
+                        APIUtils.runAsync(barcode, userAgent, new APIUtils.OnRecordFetchedListener() {
+                            @Override
+                            public void onRecordFetched(Record record) {
+                                requireActivity().runOnUiThread(() -> {
+                                    progressBar.setVisibility(View.GONE);
+                                    textViewAlbum.setText(record.toString());
 
-                                if (record.getPictureURL() != null) {
-                                    Glide.with(requireActivity())
-                                            .load(record.getPictureURL())
-                                            .into(imageViewAlbumCover);
-                                } else {
-                                    Toast.makeText(activity, "Image non disponible", Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                                    if (record.getPictureURL() != null) {
+                                        Glide.with(requireActivity())
+                                                .load(record.getPictureURL())
+                                                .into(imageViewAlbumCover);
+                                    } else {
+                                        Toast.makeText(activity, "Image non disponible", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
 
 
                                 buttonAdd.setOnClickListener(v -> {
@@ -117,7 +120,7 @@ public class AddFragment extends Fragment {
                             }
 
                             @Override
-                            public void onError (Exception e){
+                            public void onError(Exception e) {
                                 requireActivity().runOnUiThread(() -> {
                                     progressBar.setVisibility(View.GONE);
                                     textViewAlbum.setText("");
@@ -127,80 +130,72 @@ public class AddFragment extends Fragment {
                                 Log.e("Firebase", "Error: " + e.getMessage());
                             }
                         });
-                    } catch(
-                            Exception e)
-
-                    {
+                    } catch (
+                            Exception e) {
                         e.printStackTrace();
                     }
 
-                } else{
+                } else {
                     Toast.makeText(getActivity(), "Veuillez entrer un code-barres", Toast.LENGTH_SHORT).show();
                 }
-            });
-
-            Activity activity = getActivity();
-
-            if (activity != null) {
-                Toast.makeText(activity, "", Toast.LENGTH_SHORT).show();
             }
+        });
 
+        return view;
+    }
 
-            return view;
-        }
+    public void createCollectionForUser(List<Record> records, String userId) {
+        // Instantiate a new Collection object
+        Collection collection = new Collection(userId, records);
 
-        public void createCollectionForUser (List < Record > records, String userId){
-            // Instantiate a new Collection object
-            Collection collection = new Collection(userId, records);
+        DatabaseReference userCollectionsRef = databaseReference.child("users").child(userId).child("collection");
 
-            DatabaseReference userCollectionsRef = databaseReference.child("users").child(userId).child("collection");
+        String barcodeToCheck = records.get(0).getBarcode();
 
-            String barcodeToCheck = records.get(0).getBarcode();
+        // Verify if the barcode already exists in the user's collection
+        userCollectionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                boolean barcodeExists = false;
 
-            // Verify if the barcode already exists in the user's collection
-            userCollectionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    boolean barcodeExists = false;
+                for (DataSnapshot collectionSnapshot : dataSnapshot.getChildren()) {
+                    DataSnapshot recordsSnapshot = collectionSnapshot.child("records");
 
-                    for (DataSnapshot collectionSnapshot : dataSnapshot.getChildren()) {
-                        DataSnapshot recordsSnapshot = collectionSnapshot.child("records");
+                    for (DataSnapshot recordSnapshot : recordsSnapshot.getChildren()) {
+                        String barcode = recordSnapshot.child("barcode").getValue(String.class);
 
-                        for (DataSnapshot recordSnapshot : recordsSnapshot.getChildren()) {
-                            String barcode = recordSnapshot.child("barcode").getValue(String.class);
-
-                            if (barcode != null && barcode.equals(barcodeToCheck)) {
-                                // Barcode exists in the user's collection already
-                                barcodeExists = true;
-                                break;
-                            }
-                        }
-
-                        if (barcodeExists) {
+                        if (barcode != null && barcode.equals(barcodeToCheck)) {
+                            // Barcode exists in the user's collection already
+                            barcodeExists = true;
                             break;
                         }
                     }
 
                     if (barcodeExists) {
-                        // Barcode exists in the user's collection already - show error message
-                        Toast.makeText(getContext(), "Le disque existe déjà dans votre collection", Toast.LENGTH_SHORT).show();
-                        Log.e("Firebase", "Le code-barres existe déjà dans la collection de l'utilisateur");
-                    } else {
-                        // Barcode does not exist in the user's collection - add it
-                        DatabaseReference newCollectionRef = userCollectionsRef.push();
-                        newCollectionRef.setValue(collection);
-                        Toast.makeText(getContext(), "Ajout du disque dans votre collection", Toast.LENGTH_SHORT).show();
+                        break;
                     }
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("Firebase", "Erreur lors de la vérification du code-barres dans la collection de l'utilisateur");
+                if (barcodeExists) {
+                    // Barcode exists in the user's collection already - show error message
+                    Toast.makeText(getContext(), "Le disque existe déjà dans votre collection", Toast.LENGTH_SHORT).show();
+                    Log.e("Firebase", "Le code-barres existe déjà dans la collection de l'utilisateur");
+                } else {
+                    // Barcode does not exist in the user's collection - add it
+                    DatabaseReference newCollectionRef = userCollectionsRef.push();
+                    newCollectionRef.setValue(collection);
+                    Toast.makeText(getContext(), "Ajout du disque dans votre collection", Toast.LENGTH_SHORT).show();
                 }
-            });
-        }
+            }
 
-        public String getUid () {
-            return Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Firebase", "Erreur lors de la vérification du code-barres dans la collection de l'utilisateur");
+            }
+        });
     }
+
+    public String getUid() {
+        return Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+    }
+}

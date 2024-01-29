@@ -1,5 +1,7 @@
 package fr.vannes.recordstore.API;
 
+import android.widget.Toast;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -90,6 +92,12 @@ public class APIUtils {
     private static Record deserializeRecord(String jsonString) {
         JsonArray releasesArray = gson.fromJson(jsonString, JsonObject.class)
                 .getAsJsonArray("releases");
+
+        // Check if releasesArray is empty
+        if (releasesArray.size() == 0) {
+            // No record found for the given barcode
+            Toast.makeText(null, "Aucun disque trouvé pour ce code-barres", Toast.LENGTH_SHORT).show();
+        }
 
         for (JsonElement releaseElement : releasesArray) {
             JsonObject releaseObject = releaseElement.getAsJsonObject();

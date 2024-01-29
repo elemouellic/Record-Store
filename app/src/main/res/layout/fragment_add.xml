@@ -27,22 +27,26 @@
             android:orientation="horizontal">
 
             <!-- Bouton de recherche -->
+
+            <!-- Bouton d'ajout à la collection -->
             <Button
                 android:id="@+id/btn_search"
-                android:layout_width="160dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="0.8"
                 android:text="@string/recherche"
-                android:layout_marginStart="30dp"/>
-
+                />
 
             <Button
                 android:id="@+id/btn_add"
-                android:layout_width="190dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_weight="1"
                 android:text="@string/ajouter_la_collection"
-                android:layout_marginStart="10dp"/>
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"/>
         </LinearLayout>
 
         <ImageView
