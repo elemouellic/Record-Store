@@ -46,7 +46,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10")
     implementation("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
-    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.2.0")
     implementation("com.google.firebase:firebase-firestore:24.10.1")
     implementation("androidx.navigation:navigation-fragment:2.7.6")
     implementation("androidx.navigation:navigation-ui:2.7.6")

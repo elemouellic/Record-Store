@@ -11,4 +11,5 @@
     <string name="recherche">Recherche</string>
     <string name="ajouter_la_collection">Ajouter à la collection</string>
     <string name="deconnexion">Déconnexion</string>
+    <string name="scanner_le_code_barres">Scanner le code barres</string>
 </resources>

@@ -2,6 +2,7 @@ package fr.vannes.recordstore;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +29,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +47,11 @@ public class AddFragment extends Fragment {
     private DatabaseReference databaseReference;
     private String userAgent = "Record Store/1.0 (by elemouellic)";
 
+    private static final int BARCODE_READER_REQUEST_CODE = 1;
+
     private EditText editTextBarcode;
     private Button buttonSearch;
+    private Button buttonScan;
     private TextView textViewAlbum;
     private Button buttonAdd;
     private ProgressBar progressBar;
@@ -71,6 +77,8 @@ public class AddFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(layout.fragment_add, container, false);
 
+        buttonScan = view.findViewById(R.id.btn_scan);
+
         database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("RecordStore");
 
@@ -81,71 +89,99 @@ public class AddFragment extends Fragment {
         progressBar = view.findViewById(id.progressBar);
         imageViewAlbumCover = view.findViewById(R.id.imageViewAlbumCover);
 
+        buttonScan.setOnClickListener(v -> {
+            IntentIntegrator.forSupportFragment(this).initiateScan();
+        });
 
         buttonSearch.setOnClickListener(v -> {
             barcode = editTextBarcode.getText().toString();
-            // Add a check to make sure the barcode is at least 5 characters long
-            if (barcode.length() < 5) {
-                Toast.makeText(getActivity(), "Veuillez entrer un code-barres valide", Toast.LENGTH_SHORT).show();
-            } else {
-                progressBar.setVisibility(View.VISIBLE);
-                try {
-    APIUtils.runAsync(barcode, userAgent, new APIUtils.OnRecordFetchedListener() {
-        @Override
-        public void onRecordFetched(Record record) {
-            requireActivity().runOnUiThread(() -> {
-                progressBar.setVisibility(View.GONE);
-                if (record != null) {
-                    textViewAlbum.setText(record.toString());
+            handleBarcode(barcode);
+        });
+        return view;
+    }
 
-                    String pictureURL = record.getPictureURL();
-                    if (pictureURL != null) {
-                        Glide.with(requireActivity())
-                                .load(record.getPictureURL())
-                                .into(imageViewAlbumCover);
-                    } else {
-                        pictureURL = "https://simplyahouse.elemouellic.tech/public/img/emptycover.png";
-                        Toast.makeText(activity, "Image non disponible", Toast.LENGTH_SHORT).show();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            if (result.getContents() == null) {
+                Toast.makeText(getActivity(), "Scan annulé", Toast.LENGTH_SHORT).show();
+            } else {
+                String barcode = result.getContents();
+                editTextBarcode.setText(barcode);
+                handleBarcode(barcode);
+
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    /**
+     * This method handles the barcode entered by the user.
+     *
+     * @param barcode The barcode entered by the user.
+     */
+    private void handleBarcode(String barcode) {
+        // Add a check to make sure the barcode is at least 5 characters long
+        if (barcode.length() < 5) {
+            Toast.makeText(getActivity(), "Veuillez entrer un code-barres valide", Toast.LENGTH_SHORT).show();
+        } else {
+            progressBar.setVisibility(View.VISIBLE);
+            try {
+                // Run the API call in a separate thread
+                APIUtils.runAsync(barcode, userAgent, new APIUtils.OnRecordFetchedListener() {
+                    @Override
+                    public void onRecordFetched(Record record) {
+                        requireActivity().runOnUiThread(() -> {
+                            progressBar.setVisibility(View.GONE);
+                            if (record != null) {
+                                textViewAlbum.setText(record.toString());
+
+                                String pictureURL = record.getPictureURL();
+                                if (pictureURL != null) {
+                                    Glide.with(requireActivity())
+                                            .load(record.getPictureURL())
+                                            .into(imageViewAlbumCover);
+                                } else {
+                                    pictureURL = "https://simplyahouse.elemouellic.tech/public/img/emptycover.png";
+                                    Toast.makeText(activity, "Image non disponible", Toast.LENGTH_SHORT).show();
+                                }
+
+                                buttonAdd.setOnClickListener(v -> {
+                                    Log.e("Firebase", "Record fetched: " + record.getTitle());
+                                    databaseReference.child("records").child(record.getTitle());
+                                    databaseReference.child("records").child(record.getTitle()).child("id").setValue(record.getId());
+                                    databaseReference.child("records").child(record.getTitle()).child("title").setValue(record.getTitle());
+                                    databaseReference.child("records").child(record.getTitle()).child("cover").setValue(record.getPictureURL());
+                                    databaseReference.child("records").child(record.getTitle()).child("artist").setValue(record.getArtist());
+                                    databaseReference.child("records").child(record.getTitle()).child("type").setValue(record.getType());
+                                    databaseReference.child("records").child(record.getTitle()).child("barcode").setValue(record.getBarcode());
+
+                                    List<Record> records = new ArrayList<>();
+                                    records.add(record);
+
+                                    createCollectionForUser(records, getUid());
+                                });
+                            } else {
+                                Toast.makeText(activity, "Aucun disque trouvé pour ce code-barres", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
 
-                    buttonAdd.setOnClickListener(v -> {
-                        Log.e("Firebase", "Record fetched: " + record.getTitle());
-                        databaseReference.child("records").child(record.getTitle());
-                        databaseReference.child("records").child(record.getTitle()).child("id").setValue(record.getId());
-                        databaseReference.child("records").child(record.getTitle()).child("title").setValue(record.getTitle());
-                        databaseReference.child("records").child(record.getTitle()).child("cover").setValue(record.getPictureURL());
-                        databaseReference.child("records").child(record.getTitle()).child("artist").setValue(record.getArtist());
-                        databaseReference.child("records").child(record.getTitle()).child("type").setValue(record.getType());
-                        databaseReference.child("records").child(record.getTitle()).child("barcode").setValue(record.getBarcode());
-
-                        List<Record> records = new ArrayList<>();
-                        records.add(record);
-
-                        createCollectionForUser(records, getUid());
-                    });
-                } else {
-                    Toast.makeText(activity, "Aucun disque trouvé pour ce code-barres", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        @Override
-        public void onError(Exception e) {
-            if (isAdded() && activity != null) { // Check if the fragment is added to the activity and activity is not null
-                activity.runOnUiThread(() -> {
-                    Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onError(Exception e) {
+                        if (isAdded() && activity != null) { // Check if the fragment is added to the activity and activity is not null
+                            activity.runOnUiThread(() -> {
+                                Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    }
                 });
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-    });
-} catch (Exception e) {
-    e.printStackTrace();
-}
-
-            }
-        });
-
-        return view;
     }
 
     /**

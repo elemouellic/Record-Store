@@ -1,5 +1,7 @@
 package fr.vannes.recordstore.API;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.widget.Toast;
 
 import com.google.firebase.database.FirebaseDatabase;
@@ -38,8 +40,16 @@ public class APIUtils {
     private static final Gson gson = new Gson();
 
     public interface OnRecordFetchedListener {
+        /**
+         * This method is called when the record is fetched from the API.
+         * @param record The record fetched from the API.
+         */
         void onRecordFetched(Record record);
 
+        /**
+         * This method is called when an error occurs during the API call.
+         * @param e The exception thrown.
+         */
         void onError(Exception e);
     }
 
@@ -211,6 +221,7 @@ public class APIUtils {
 
 
     }
+
 
 
 
