@@ -78,10 +78,14 @@ public class CollectionFragment extends Fragment {
         View view = inflater.inflate(layout.fragment_collection, container, false);
 
         ScrollView scrollView = new ScrollView(getContext());
+LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT, // Largeur
+        LinearLayout.LayoutParams.MATCH_PARENT); // Hauteur
+scrollView.setLayoutParams(layoutParams);
         Collection collection = new Collection("", new ArrayList<>());
 
         GridLayout gridLayout = new GridLayout(getContext());
-        gridLayout.setColumnCount(2); // Set the number of columns to 2
+        gridLayout.setColumnCount(2);
         scrollView.addView(gridLayout);
         ViewGroup rootView = (ViewGroup) view;
         rootView.addView(scrollView);

@@ -61,7 +61,7 @@ public class APIUtils {
         executorService.execute(() -> {
             try {
                 String jsonString = fetchRecordData(barcode, userAgent);
-                Record record = deserializeRecord(jsonString);
+                Record record = deserializeRecord(jsonString, listener);
                 listener.onRecordFetched(record);
             } catch (Exception e) {
                 listener.onError(e);
@@ -99,14 +99,15 @@ public class APIUtils {
      * @param jsonString The JSON response from the MusicBrainz API.
      * @return The Record object.
      */
-    private static Record deserializeRecord(String jsonString) {
+    private static Record deserializeRecord(String jsonString, OnRecordFetchedListener listener) {
         JsonArray releasesArray = gson.fromJson(jsonString, JsonObject.class)
                 .getAsJsonArray("releases");
 
         // Check if releasesArray is empty
         if (releasesArray.size() == 0) {
             // No record found for the given barcode
-            Toast.makeText(null, "Aucun disque trouvé pour ce code-barres", Toast.LENGTH_SHORT).show();
+            listener.onError(new Exception("Aucun disque trouvé pour ce code-barres"));
+            return null;
         }
 
         for (JsonElement releaseElement : releasesArray) {
@@ -122,10 +123,14 @@ public class APIUtils {
             // Retrieve the picture URL from the JSON response
             String coverArtArchiveUrl = releasesArray.size() > 0
                     ? "https://coverartarchive.org/release/" + id + "/front"
-                    : "";
+                    : "https://simplyahouse.elemouellic.tech/public/img/emptycover.png";
             String directImageUrl = releasesArray.size() > 0
                     ? getDirectImageUrl(coverArtArchiveUrl)
-                    : "";
+                    : "https://simplyahouse.elemouellic.tech/public/img/emptycover.png";
+
+            if (directImageUrl == null) {
+                directImageUrl = "https://simplyahouse.elemouellic.tech/public/img/emptycover.png";
+            }
 
             // Retrieve the type from the JSON response
             String type = "";

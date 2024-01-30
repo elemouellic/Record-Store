@@ -1,6 +1,7 @@
 package fr.vannes.recordstore;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,11 +53,13 @@ public class AddFragment extends Fragment {
 
     private String barcode;
 
-//    @Override
-//    public void onAttach(@NonNull Activity activity) {
-//        super.onAttach(activity);
-//        this.activity = activity;
-//    }
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity) {
+            activity = (Activity) context;
+        }
+    }
 
 
     @Nullable
@@ -74,65 +77,66 @@ public class AddFragment extends Fragment {
         progressBar = view.findViewById(id.progressBar);
         imageViewAlbumCover = view.findViewById(R.id.imageViewAlbumCover);
 
+
         buttonSearch.setOnClickListener(v -> {
             barcode = editTextBarcode.getText().toString();
             // Add a check to make sure the barcode is at least 5 characters long
             if (barcode.length() < 5) {
                 Toast.makeText(getActivity(), "Veuillez entrer un code-barres valide", Toast.LENGTH_SHORT).show();
             } else {
-                    progressBar.setVisibility(View.VISIBLE);
-                    try {
+                progressBar.setVisibility(View.VISIBLE);
+                try {
+    APIUtils.runAsync(barcode, userAgent, new APIUtils.OnRecordFetchedListener() {
+        @Override
+        public void onRecordFetched(Record record) {
+            requireActivity().runOnUiThread(() -> {
+                progressBar.setVisibility(View.GONE);
+                if (record != null) {
+                    textViewAlbum.setText(record.toString());
 
-                        APIUtils.runAsync(barcode, userAgent, new APIUtils.OnRecordFetchedListener() {
-                            @Override
-                            public void onRecordFetched(Record record) {
-                                requireActivity().runOnUiThread(() -> {
-                                    progressBar.setVisibility(View.GONE);
-                                    textViewAlbum.setText(record.toString());
-
-                                    if (record.getPictureURL() != null) {
-                                        Glide.with(requireActivity())
-                                                .load(record.getPictureURL())
-                                                .into(imageViewAlbumCover);
-                                    } else {
-                                        Toast.makeText(activity, "Image non disponible", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-
-
-                                buttonAdd.setOnClickListener(v -> {
-
-                                    Log.e("Firebase", "Record fetched: " + record.getTitle());
-                                    databaseReference.child("records").child(record.getTitle());
-                                    databaseReference.child("records").child(record.getTitle()).child("id").setValue(record.getId());
-                                    databaseReference.child("records").child(record.getTitle()).child("title").setValue(record.getTitle());
-                                    databaseReference.child("records").child(record.getTitle()).child("cover").setValue(record.getPictureURL());
-                                    databaseReference.child("records").child(record.getTitle()).child("artist").setValue(record.getArtist());
-                                    databaseReference.child("records").child(record.getTitle()).child("type").setValue(record.getType());
-                                    databaseReference.child("records").child(record.getTitle()).child("barcode").setValue(record.getBarcode());
-
-                                    List<Record> records = new ArrayList<>();
-                                    records.add(record);
-
-                                    createCollectionForUser(records, getUid());
-                                });
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                requireActivity().runOnUiThread(() -> {
-                                    progressBar.setVisibility(View.GONE);
-                                    textViewAlbum.setText("");
-                                    Toast.makeText(getActivity(), "Erreur lors de la récupération de l'album", Toast.LENGTH_SHORT).show();
-                                });
-
-                                Log.e("Firebase", "Error: " + e.getMessage());
-                            }
-                        });
-                    } catch (
-                            Exception e) {
-                        e.printStackTrace();
+                    String pictureURL = record.getPictureURL();
+                    if (pictureURL != null) {
+                        Glide.with(requireActivity())
+                                .load(record.getPictureURL())
+                                .into(imageViewAlbumCover);
+                    } else {
+                        pictureURL = "https://simplyahouse.elemouellic.tech/public/img/emptycover.png";
+                        Toast.makeText(activity, "Image non disponible", Toast.LENGTH_SHORT).show();
                     }
+
+                    buttonAdd.setOnClickListener(v -> {
+                        Log.e("Firebase", "Record fetched: " + record.getTitle());
+                        databaseReference.child("records").child(record.getTitle());
+                        databaseReference.child("records").child(record.getTitle()).child("id").setValue(record.getId());
+                        databaseReference.child("records").child(record.getTitle()).child("title").setValue(record.getTitle());
+                        databaseReference.child("records").child(record.getTitle()).child("cover").setValue(record.getPictureURL());
+                        databaseReference.child("records").child(record.getTitle()).child("artist").setValue(record.getArtist());
+                        databaseReference.child("records").child(record.getTitle()).child("type").setValue(record.getType());
+                        databaseReference.child("records").child(record.getTitle()).child("barcode").setValue(record.getBarcode());
+
+                        List<Record> records = new ArrayList<>();
+                        records.add(record);
+
+                        createCollectionForUser(records, getUid());
+                    });
+                } else {
+                    Toast.makeText(activity, "Aucun disque trouvé pour ce code-barres", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        @Override
+        public void onError(Exception e) {
+            if (isAdded() && activity != null) { // Check if the fragment is added to the activity and activity is not null
+                activity.runOnUiThread(() -> {
+                    Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        }
+    });
+} catch (Exception e) {
+    e.printStackTrace();
+}
 
             }
         });
