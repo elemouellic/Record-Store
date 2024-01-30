@@ -10,4 +10,5 @@
     <string name="entrez_le_code_barres_ici">Entrez le code-barres ici</string>
     <string name="recherche">Recherche</string>
     <string name="ajouter_la_collection">Ajouter à la collection</string>
+    <string name="deconnexion">Déconnexion</string>
 </resources>

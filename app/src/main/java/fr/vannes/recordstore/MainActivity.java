@@ -1,6 +1,7 @@
 package fr.vannes.recordstore;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -31,6 +32,10 @@ private FirebaseAuth auth;
 
 
         super.onCreate(savedInstanceState);
+
+        // Force app to use light theme
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
         setContentView(R.layout.activity_main);
 
         auth = FirebaseAuth.getInstance();

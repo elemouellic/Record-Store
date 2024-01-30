@@ -23,14 +23,21 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_login);
 
-        createSignInIntent();
+    // Check if user just logged out
+    boolean justLoggedOut = getIntent().getBooleanExtra("justLoggedOut", false);
+    if (justLoggedOut) {
+        // User just logged out, remove the extra
+        getIntent().removeExtra("justLoggedOut");
     }
 
+    // No user is signed in, show sign in UI
+    createSignInIntent();
+}
     public void createSignInIntent() {
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.EmailBuilder().build(),
@@ -51,8 +58,14 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
-                Intent intent = new Intent(this, CollectionActivity.class);
-                startActivity(intent);
+                boolean justLoggedOut = getIntent().getBooleanExtra("justLoggedOut", false);
+                if(justLoggedOut){
+                    // Redirect to login activity after logout
+                    getIntent().removeExtra("justLoggedOut");
+                } else {
+                    Intent intent = new Intent(this, MainActivity.class);
+                    startActivity(intent);
+                }
 
                 // save user in database if not already saved
                 if(FirebaseAuth.getInstance().getCurrentUser() != null){
