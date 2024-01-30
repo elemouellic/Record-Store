@@ -53,6 +53,10 @@ public class AddFragment extends Fragment {
 
     private String barcode;
 
+    public AddFragment() {
+        // Required empty public constructor
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);

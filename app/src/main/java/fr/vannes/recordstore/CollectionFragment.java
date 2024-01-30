@@ -32,11 +32,7 @@ import fr.vannes.recordstore.API.APIUtils;
 import fr.vannes.recordstore.BO.Collection;
 import fr.vannes.recordstore.BO.Record;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CollectionFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class CollectionFragment extends Fragment {
 
 
@@ -44,32 +40,6 @@ public class CollectionFragment extends Fragment {
         // Required empty public constructor
     }
 
-//    /**
-//     * Use this factory method to create a new instance of
-//     * this fragment using the provided parameters.
-//     *
-//     * @param param1 Parameter 1.
-//     * @param param2 Parameter 2.
-//     * @return A new instance of fragment CollectionFragment.
-//     */
-//    // TODO: Rename and change types and number of parameters
-//    public static CollectionFragment newInstance(String param1, String param2) {
-//        CollectionFragment fragment = new CollectionFragment();
-//        Bundle args = new Bundle();
-//        args.putString(ARG_PARAM1, param1);
-//        args.putString(ARG_PARAM2, param2);
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
-//
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
-//            mParam2 = getArguments().getString(ARG_PARAM2);
-//        }
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,10 +48,10 @@ public class CollectionFragment extends Fragment {
         View view = inflater.inflate(layout.fragment_collection, container, false);
 
         ScrollView scrollView = new ScrollView(getContext());
-LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT, // Largeur
-        LinearLayout.LayoutParams.MATCH_PARENT); // Hauteur
-scrollView.setLayoutParams(layoutParams);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, // Largeur
+                LinearLayout.LayoutParams.MATCH_PARENT); // Hauteur
+        scrollView.setLayoutParams(layoutParams);
         Collection collection = new Collection("", new ArrayList<>());
 
         GridLayout gridLayout = new GridLayout(getContext());
@@ -108,7 +78,7 @@ scrollView.setLayoutParams(layoutParams);
                                     // Create a new ImageView for the album cover
                                     ImageView imageView = new ImageView(getContext());
                                     imageView.setLayoutParams(new ViewGroup.LayoutParams(300, 300)); // Set the size of the ImageView
-
+                                    imageView.setPadding(10, 10, 10, 10);
                                     // Use Glide to load the album cover into the ImageView
                                     Glide.with(requireContext())
                                             .load(record.getPictureURL())
@@ -117,17 +87,20 @@ scrollView.setLayoutParams(layoutParams);
                                     gridLayout.addView(imageView);
 
                                     TextView textView = new TextView(getContext());
-                                    textView.setText(record.getTitle());
+                                    textView.setText(record.toString());
+
+                                    textView.setTextSize(18); // Set text size to 20
                                     textView.setTextColor(Color.BLACK); // Set text color to black
                                     gridLayout.addView(textView);
                                 }
                             } else {
-                                Toast.makeText(getContext(), "Error: Collection or records is null", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Erreur lors de la récupération des données", Toast.LENGTH_SHORT).show();
                             }
                         }
                     } else {
                         String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-                        Toast.makeText(getContext(), "Error while getting collection: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Erreur lors de la récupération des données de la collection", Toast.LENGTH_SHORT).show();
+                        Log.e("CollectionFragment", "Error while getting collection : " + errorMessage, task.getException());
                     }
                 });
 
