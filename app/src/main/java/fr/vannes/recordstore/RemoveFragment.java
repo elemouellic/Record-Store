@@ -1,61 +1,35 @@
 package fr.vannes.recordstore;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link RemoveFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.FirebaseDatabase;
+
+import fr.vannes.recordstore.BO.Collection;
+import fr.vannes.recordstore.BO.Record;
+
+
 public class RemoveFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public RemoveFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment RemoveFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static RemoveFragment newInstance(String param1, String param2) {
-        RemoveFragment fragment = new RemoveFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,11 +37,63 @@ public class RemoveFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_remove, container, false);
 
-        Activity activity = getActivity();
+        ScrollView scrollView = new ScrollView(getContext());
+        LinearLayout linearLayout = new LinearLayout(getContext());
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        scrollView.addView(linearLayout);
+        ViewGroup rootView = (ViewGroup) view;
+        rootView.addView(scrollView);
 
-        if (activity != null) {
-            Toast.makeText(activity, "", Toast.LENGTH_SHORT).show();
-        }
+        FirebaseDatabase.getInstance().getReference("RecordStore").child("users")
+                .child(AddFragment.getUid())
+                .child("collection")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        for (DataSnapshot dataSnapshot : task.getResult().getChildren()) {
+                            Collection resultCollection = dataSnapshot.getValue(Collection.class);
+                            if (resultCollection != null && resultCollection.getRecords() != null) {
+                                for (Record record : resultCollection.getRecords()) {
+                                    TextView textView = new TextView(getContext());
+                                    textView.setText(record.toString());
+                                    textView.setTextSize(18);
+                                    textView.setTextColor(Color.BLACK);
+                                    linearLayout.addView(textView);
+
+                                    Button removeButton = new Button(getContext());
+                                    removeButton.setText("Supprimer");
+                                    removeButton.setOnClickListener(v -> {
+                                        new AlertDialog.Builder(getContext())
+                                                .setTitle("Confirmation de suppression")
+                                                .setMessage("Êtes-vous sûr de vouloir supprimer cet enregistrement ?")
+                                                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                                                    // Remove the record from the database
+                                                    FirebaseDatabase.getInstance().getReference("RecordStore").child("users")
+                                                            .child(AddFragment.getUid())
+                                                            .child("collection")
+                                                            .child(dataSnapshot.getKey())
+                                                            .removeValue();
+                                                    // Remove the record view from the layout
+                                                    linearLayout.removeView(textView);
+                                                    linearLayout.removeView(removeButton);
+                                                })
+                                                .setNegativeButton(android.R.string.no, null)
+                                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                                .show();
+                                    });
+                                    ;
+                                    linearLayout.addView(removeButton);
+                                }
+                            } else {
+                                Toast.makeText(getContext(), "Erreur lors de la récupération des données", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    } else {
+                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                        Toast.makeText(getContext(), "Erreur lors de la récupération des données de la collection", Toast.LENGTH_SHORT).show();
+                        Log.e("RemoveFragment", "Error while getting collection : " + errorMessage, task.getException());
+                    }
+                });
 
         return view;
     }
