@@ -13,10 +13,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -73,36 +77,55 @@ public class CollectionFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(layout.fragment_collection, container, false);
 
-        Collection collection  = new Collection("", new ArrayList<>());
+        ScrollView scrollView = new ScrollView(getContext());
+        Collection collection = new Collection("", new ArrayList<>());
 
-FirebaseDatabase.getInstance().getReference("RecordStore").child("users")
-    .child(AddFragment.getUid())
-    .child("collection")
-    .get()
-    .addOnCompleteListener(task -> {
-        if (task.isSuccessful() && task.getResult() != null) {
-            for (DataSnapshot dataSnapshot : task.getResult().getChildren()) {
-                Collection resultCollection = dataSnapshot.getValue(Collection.class);
-                if (resultCollection != null && resultCollection.getRecords() != null) {
-                    collection.setRecords(new ArrayList<>(resultCollection.getRecords()));
+        GridLayout gridLayout = new GridLayout(getContext());
+        gridLayout.setColumnCount(2); // Set the number of columns to 2
+        scrollView.addView(gridLayout);
+        ViewGroup rootView = (ViewGroup) view;
+        rootView.addView(scrollView);
 
-                    LinearLayout linearLayout = view.findViewById(id.linearLayoutcollection);
-                    for (Record record : collection.getRecords()) {
-                        Log.d("CollectionFragment", "Record title: " + record.getTitle()); // Log the record title
-                        TextView textView = new TextView(getContext());
-                        textView.setText(record.getTitle());
-                        textView.setTextColor(Color.BLACK); // Set text color to black
-                        linearLayout.addView(textView);
+
+        FirebaseDatabase.getInstance().getReference("RecordStore").child("users")
+                .child(AddFragment.getUid())
+                .child("collection")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        for (DataSnapshot dataSnapshot : task.getResult().getChildren()) {
+                            Collection resultCollection = dataSnapshot.getValue(Collection.class);
+                            if (resultCollection != null && resultCollection.getRecords() != null) {
+                                collection.setRecords(new ArrayList<>(resultCollection.getRecords()));
+
+                                for (Record record : collection.getRecords()) {
+                                    Log.d("CollectionFragment", "Record title: " + record.getTitle()); // Log the record title
+
+                                    // Create a new ImageView for the album cover
+                                    ImageView imageView = new ImageView(getContext());
+                                    imageView.setLayoutParams(new ViewGroup.LayoutParams(300, 300)); // Set the size of the ImageView
+
+                                    // Use Glide to load the album cover into the ImageView
+                                    Glide.with(requireContext())
+                                            .load(record.getPictureURL())
+                                            .override(200, 200) // Resize the image
+                                            .into(imageView);
+                                    gridLayout.addView(imageView);
+
+                                    TextView textView = new TextView(getContext());
+                                    textView.setText(record.getTitle());
+                                    textView.setTextColor(Color.BLACK); // Set text color to black
+                                    gridLayout.addView(textView);
+                                }
+                            } else {
+                                Toast.makeText(getContext(), "Error: Collection or records is null", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    } else {
+                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                        Toast.makeText(getContext(), "Error while getting collection: " + errorMessage, Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(getContext(), "Error: Collection or records is null", Toast.LENGTH_SHORT).show();
-                }
-            }
-        } else {
-            String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-            Toast.makeText(getContext(), "Error while getting collection: " + errorMessage, Toast.LENGTH_SHORT).show();
-        }
-    });;
+                });
 
         return view;
     }
