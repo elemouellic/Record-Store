@@ -2,6 +2,7 @@ package fr.vannes.recordstore.API;
 
 import android.widget.Toast;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -11,6 +12,15 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import java.util.ArrayList;
+
+import fr.vannes.recordstore.BO.Record;
+import fr.vannes.recordstore.BO.Collection;
 import fr.vannes.recordstore.BO.Artist;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -196,6 +206,7 @@ public class APIUtils {
 
 
     }
+
 
 
 }

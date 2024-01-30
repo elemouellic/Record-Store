@@ -27,6 +27,10 @@ import fr.vannes.recordstore.API.APIUtils;
 import fr.vannes.recordstore.BO.Collection;
 import fr.vannes.recordstore.BO.Record;
 
+/**
+ * This activity is the main activity of the application.
+ * It contains a bottom navigation bar to navigate between the different fragments.
+ */
 public class CollectionActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;

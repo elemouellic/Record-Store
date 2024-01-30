@@ -80,7 +80,6 @@ public class AddFragment extends Fragment {
             if (barcode.length() < 5) {
                 Toast.makeText(getActivity(), "Veuillez entrer un code-barres valide", Toast.LENGTH_SHORT).show();
             } else {
-                if (!barcode.isEmpty()) {
                     progressBar.setVisibility(View.VISIBLE);
                     try {
 
@@ -135,15 +134,18 @@ public class AddFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                } else {
-                    Toast.makeText(getActivity(), "Veuillez entrer un code-barres", Toast.LENGTH_SHORT).show();
-                }
             }
         });
 
         return view;
     }
 
+    /**
+     * Create a collection for the user
+     *
+     * @param records The list of records to add to the collection
+     * @param userId  The user ID
+     */
     public void createCollectionForUser(List<Record> records, String userId) {
         // Instantiate a new Collection object
         Collection collection = new Collection(userId, records);
@@ -195,7 +197,12 @@ public class AddFragment extends Fragment {
         });
     }
 
-    public String getUid() {
+    /**
+     * Get the user ID
+     *
+     * @return The user ID
+     */
+    public static String getUid() {
         return Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     }
 }
