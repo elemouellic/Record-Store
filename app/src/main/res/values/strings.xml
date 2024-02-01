@@ -12,4 +12,6 @@
     <string name="ajouter_la_collection">Ajouter à la collection</string>
     <string name="deconnexion">Déconnexion</string>
     <string name="scanner_le_code_barres">Scanner le code barres</string>
+    <string name="welcome_to_record_store">Welcome to Record Store</string>
+    <string name="vous_tes_connect_avec_l_adresse">Vous êtes connecté avec l\'adresse :</string>
 </resources>

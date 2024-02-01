@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -35,8 +37,11 @@ protected void onCreate(Bundle savedInstanceState) {
         getIntent().removeExtra("justLoggedOut");
     }
 
-    // No user is signed in, show sign in UI
-    createSignInIntent();
+    // Check if a user is already signed in
+    if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+        // No user is signed in, show sign in UI
+        createSignInIntent();
+    }
 }
     public void createSignInIntent() {
         List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -50,6 +55,10 @@ protected void onCreate(Bundle savedInstanceState) {
                         .build(),
                 RC_SIGN_IN);
     }
+
+
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -81,18 +90,8 @@ protected void onCreate(Bundle savedInstanceState) {
                     user.put("email", email);
 
                     db.collection("users").document(uid).set(user)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d("LoginActivity", "User successfully written!");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("LoginActivity", "Error writing user", e);
-                                }
-                            });
+                            .addOnSuccessListener(aVoid -> Log.d("LoginActivity", "User successfully written!"))
+                            .addOnFailureListener(e -> Log.w("LoginActivity", "Error writing user", e));
                 }
 
                 finish();

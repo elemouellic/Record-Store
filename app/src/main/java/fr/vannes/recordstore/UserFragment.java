@@ -1,11 +1,14 @@
 package fr.vannes.recordstore;
 
+import static androidx.core.app.ActivityCompat.finishAffinity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,13 +43,21 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 //        String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
-        userNameTextView.setText("Vous êtes connecté avec l'adresse :");
+        userNameTextView.setText(R.string.vous_tes_connect_avec_l_adresse);
         userEmailTextView.setText(userEmail);
     }
 
 logoutButton.setOnClickListener(v -> {
+    Toast.makeText(getActivity(), "Déconnexion en cours", Toast.LENGTH_SHORT).show();
     FirebaseAuth.getInstance().signOut();
 
+    // Redirect to Login Activity after successful sign out
+    Intent intent = new Intent(getActivity(), LoginActivity.class);
+    intent.putExtra("justLoggedOut", true);
+    startActivity(intent);
+
+    // Finish current activity
+    requireActivity().finish();
 });
     return view;
 }}
